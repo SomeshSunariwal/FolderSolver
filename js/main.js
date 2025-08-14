@@ -253,14 +253,19 @@
             return;
         }
 
+        // Show confirmation box
+        var proceed = confirm("Are you sure you want to add these folders to the project?");
+        if (!proceed) {
+            return; // Skip if user clicks Cancel
+        }
+
         saveFolderList();
 
         var json = JSON.stringify(folderNames);
         var escaped = json.replace(/\\/g, "\\\\").replace(/'/g, "\\'");
-        alert("Adding folders to Premiere Pro");
         try {
             csInterface.evalScript("addFoldersToPremiere('" + escaped + "')", function (res) {
-                alert("addFoldersToPremiere result:", res);
+                alert("Folder Added Successfully", res);
             });
         } catch (e) {
             alert("Error calling ExtendScript: " + e);
