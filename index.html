@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>FolderSolver</title>
+    <meta http-equiv="Extend-Script-Control" content="EnableRedirection" />
+    <link rel="stylesheet" href="css/panel.css" />
+</head>
+
+<body class="foldersolver">
+    <div class="panel">
+
+        <!-- Top toolbar -->
+        <header class="toolbar toolbar--top">
+            <button id="btnAddTop" class="btn btn--md btn--primary">+ Add</button>
+        </header>
+
+        <section class="box">
+            <ul id="folderList" class="list" aria-label="Folders">
+                <!-- Start empty; items will be added dynamically -->
+            </ul>
+        </section>
+
+        <!-- Bottom toolbar (centered "Add to Project") -->
+        <footer class="toolbar toolbar--bottom toolbar--center">
+            <button id="btnAddToProject" class="btn btn--md btn--primary">Add to Project</button>
+        </footer>
+    </div>
+
+    <!-- Scripts kept for later wiring; no behavior implemented in this step -->
+    <script src="./jsx/extendscript.jsx"></script>
+    <script src="./lib/CSInterface.js"></script>
+    <script src="./lib/jquery-1.9.1.js"></script>
+    <script src="./lib/Vulcan.js"></script>
+    <script src="./lib/CEPEngine_extensions.js"></script>
+    <script src="./log/logging.js"></script>
+    <script src="./js/main.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ExtensionManifest Version="5.0"
+    ExtensionBundleId="com.adobe.FolderSolver" 
+    ExtensionBundleVersion="11.1"
+    ExtensionBundleName="Folder Solver"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    
+    <ExtensionList>
+        <Extension Id="com.adobe.FolderSolver" Version="10.3.0" />
+    </ExtensionList>
+    
+    <ExecutionEnvironment>
+		<HostList>
+			<Host Name="PPRO" Version="[9.0,99.0]" />
+		</HostList>
+		<LocaleList>
+			<Locale Code="All" />
+		</LocaleList>
+		<RequiredRuntimeList>
+			<RequiredRuntime Name="CSXS" Version="11.0" />
+		</RequiredRuntimeList>
+	</ExecutionEnvironment>
+
+    
+    <DispatchInfoList>
+        <Extension Id="com.adobe.FolderSolver">
+            <DispatchInfo>
+                <Resources>
+                    <MainPath>./index.html</MainPath>
+                    <ScriptPath>./jsx/extendscript.jsx</ScriptPath>
+                    <ScriptPath>./log/logging.js</ScriptPath>
+                    <ScriptPath>./js/main.js</ScriptPath>
+                    <CEFCommandLine>
+                        <Parameter>--enable-nodejs</Parameter>
+                        <Parameter>--allow-file-access</Parameter>
+						<Parameter>--allow-file-access-from-files</Parameter>
+						<Parameter>--allow-running-insecure-content</Parameter>
+                        <Parameter>--remote-debugging-port=9222</Parameter>
+                    </CEFCommandLine>
+                </Resources>
+                <Lifecycle>
+                    <AutoVisible>true</AutoVisible>
+                </Lifecycle>
+                <UI>
+					<Type>Panel</Type>
+					<Menu>Folder Solver</Menu>
+					<Geometry>
+						<Size>
+							<Height>400</Height>
+							<Width>550</Width>
+						</Size>
+                         <MinSize>
+                            <Height>400</Height>
+                            <Width>600</Width>
+                        </MinSize>
+                        <MaxSize>
+                            <Height>2000</Height>
+                            <Width>2000</Width>
+                        </MaxSize>
+					</Geometry>
+				</UI>
+            </DispatchInfo>
+        </Extension>
+    </DispatchInfoList>
+</ExtensionManifest>
