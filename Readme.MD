@@ -6,13 +6,14 @@ The Folder Solver plugin for Adobe Premiere Pro makes project organization effor
 ![image1](./Images/Image1.png)
 
 ![image1](./Images/Image1.png)
+
 #### Currunt Features 
 1. You can manage folders
-2. Folder structure remain same while project switch.
+2. Folder structure remain same even after switchin projects.
 
 #### Planned Features
 1. Auto Manage Files and Moved to Respective Bins.
 
---- More Features will be updated Soon ---
+#### --- More Features will be updated Soon ---
 
-### If you want any feature to be added please raise a request.
+## 📃If you want any feature to be added please raise a request 📃.
