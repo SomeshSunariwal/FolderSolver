@@ -1,47 +1,46 @@
 function addFoldersToPremiere(jsonStr) {
     try {
-        // Parse JSON robustly (older ExtendScript may not have JSON.parse)
-        var folderNames;
-        if (typeof JSON !== "undefined" && JSON.parse) {
-            folderNames = JSON.parse(jsonStr);
-        } else {
-            folderNames = eval(jsonStr);
-        }
+        // Parse JSON safely
+        var folderNames = (typeof JSON !== "undefined" && JSON.parse)
+            ? JSON.parse(jsonStr)
+            : eval(jsonStr);
 
-        if (!folderNames || folderNames.length === 0) {
-            return "No folders provided.";
-        }
+        if (!folderNames || !folderNames.length) return "No folders provided.";
 
-        if (!app || !app.project) {
-            return "No active project found.";
-        }
+        if (!app || !app.project) return "No active project found.";
 
         var root = app.project.rootItem;
-        var created = 0;
-        for (var i = 0; i < folderNames.length; i++) {
-            var raw = folderNames[i];
+        var created = 0, skipped = 0;
 
-            // Coerce to string (handles objects/String objects/null/undefined)
-            var nameStr = (raw === null || raw === undefined) ? "" : String(raw);
-
-            // Trim using regex (safe in ExtendScript)
-            nameStr = nameStr.replace(/^\s+|\s+$/g, "");
-
-            if (!nameStr) {
-                continue;
+        // Check if bin exists in root
+        function binExists(name) {
+            for (var i = 0; i < root.children.numItems; i++) {
+                var item = root.children[i];
+                if (item && item.name === name && item.type === ProjectItemType.BIN) {
+                    return true;
+                }
             }
+            return false;
+        }
 
-            try {
-                root.createBin(nameStr);
-                created++;
-            } catch (errCreate) {
-                $.writeln("createBin failed for '" + nameStr + "': " + errCreate);
+        for (var i = 0; i < folderNames.length; i++) {
+            var name = String(folderNames[i] || "").replace(/^\s+|\s+$/g, "");
+            if (!name) continue;
+
+            if (binExists(name)) {
+                skipped++;
+            } else {
+                try {
+                    root.createBin(name);
+                    created++;
+                } catch (err) {
+                    $.writeln("Failed to create folder '" + name + "': " + err);
+                }
             }
         }
 
-        return "OK: " + created + " folder(s) created.";
+        return "OK: " + created + " created, " + skipped + " skipped.";
     } catch (e) {
-        // Return error text so the evalScript callback receives meaningful info
         return "ERROR: " + (e && e.toString ? e.toString() : e);
     }
 }
