@@ -34,7 +34,35 @@ function scanProjectItems() {
             {
                 key: "colorMattes", label: "Color Mattes", match: function (item) {
                     if (!item || !item.name) return false;
-                    return item.name.toLowerCase().indexOf("color matte") >= 0;
+                    return item &&
+                        item.type === ProjectItemType.CLIP &&
+                        item.name && item.name.toLowerCase().indexOf("color matte") >= 0;
+                }
+            },
+            {
+                key: "audio", label: "Audio Clips", match: function (item) {
+                    if (!item || !item.name) return false;
+                    var ext = item.name.toLowerCase().split('.').pop();
+                    return inArray(ext, ["mp3", "wav", "aiff", "m4a"]);
+                }
+            },
+            {
+                key: "motionGraphics", label: "Motion Graphics", match: function (item) {
+                    if (!item || !item.name) return false;
+                    var ext = item.name.toLowerCase().split('.').pop();
+                    return inArray(ext, ["mogrt"]) || (item.type && item.type === ProjectItemType.CLIP && item.isSequence && item.isSequence() && item.mainTrackType === "Video");
+                }
+            },
+            {
+                key: "adjustmentLayers", label: "Adjustment Layers", match: function (item) {
+                    if (!item || !item.name) return false;
+                    return item.name.toLowerCase().indexOf("adjustment layer") >= 0;
+                }
+            },
+            {
+                key: "subtitles", label: "Subtitles / Captions", match: function (item) {
+                    if (!item || !item.name) return false;
+                    return item.name.toLowerCase().indexOf("caption") >= 0 || item.type === ProjectItemType.CAPTION || item.name.toLowerCase().indexOf("subtitle") >= 0;
                 }
             }
         ];
@@ -124,8 +152,36 @@ function moveItemsToSelectedBins(selectionsJSON) {
             {
                 key: "colorMattes", match: function (item) {
                     if (!item || !item.name) return false;
-                    return item.name.toLowerCase().indexOf("color matte") >= 0;
+                    return item &&
+                        item.type === ProjectItemType.CLIP &&
+                        item.name && item.name.toLowerCase().indexOf("color matte") >= 0;
                 }
+            },
+            {
+                key: "audio", match: function (item) {
+                    if (!item || !item.name) return false;
+                    var ext = item.name.toLowerCase().split('.').pop();
+                    return inArray(ext, ["mp3", "wav", "aiff", "m4a"]);
+                },
+            },
+            {
+                key: "motionGraphics", match: function (item) {
+                    if (!item || !item.name) return false;
+                    var ext = item.name.toLowerCase().split('.').pop();
+                    return inArray(ext, ["mogrt"]) || (item.type && item.type === ProjectItemType.CLIP && item.isSequence && item.isSequence() && item.mainTrackType === "Video");
+                },
+            },
+            {
+                key: "adjustmentLayers", match: function (item) {
+                    if (!item || !item.name) return false;
+                    return item.name.toLowerCase().indexOf("adjustment layer") >= 0;
+                },
+            },
+            {
+                key: "subtitles", match: function (item) {
+                    if (!item || !item.name) return false;
+                    return item.name.toLowerCase().indexOf("caption") >= 0 || item.type === ProjectItemType.CAPTION || item.name.toLowerCase().indexOf("subtitle") >= 0;
+                },
             }
         ];
 
