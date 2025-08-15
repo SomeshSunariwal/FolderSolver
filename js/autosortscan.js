@@ -67,6 +67,26 @@
         sorterResults.innerHTML = html;
     }
 
+    function updateProgress(percent) {
+        alert("Progress: " + percent + "%");
+        var container = document.getElementById("progressContainer");
+        var bar = document.getElementById("progressBar");
+
+        if (container && bar) {
+            container.style.display = "block"; // show bar
+            bar.style.width = percent + "%";   // update width
+
+            if (percent >= 100) {
+                setTimeout(function () {
+                    document.getElementById("progressContainer").style.display = "none";
+                    document.getElementById("progressBar").style.width = "0%";
+                }, 500);
+            }
+        }
+    }
+
+
+
     // Handle all clicks inside the table
     sorterResults.addEventListener("click", function (e) {
         const row = e.target.closest(".sorter-item");

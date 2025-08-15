@@ -299,6 +299,21 @@ function moveItemsToSelectedBins(selectionsJSON) {
             return null;
         }
 
+        // Count total items for progress
+        var totalItems = 0;
+        for (var i = 0; i < scanConfig.length; i++) {
+            var cfg = scanConfig[i];
+            var sel = selections[cfg.key];
+            if (sel && typeof sel.index === "number") {
+                for (var c = 0; c < root.children.numItems; c++) {
+                    var item = root.children[c];
+                    if (item && item.type !== ProjectItemType.BIN && cfg.match(item)) totalItems++;
+                }
+            }
+        }
+
+        var movedItems = 0;
+
         // Only process items directly under root
         for (var i = 0; i < scanConfig.length; i++) {
             var cfg = scanConfig[i];
@@ -306,13 +321,19 @@ function moveItemsToSelectedBins(selectionsJSON) {
             if (sel && typeof sel.index === "number") {
                 var targetBin = getRootBinByIndex(sel.index);
                 if (targetBin) {
-                    // Loop backwards to prevent skipping items when moving
+                    // Loop backwards to prevent skipping items
                     for (var c = root.children.numItems - 1; c >= 0; c--) {
                         var item = root.children[c];
                         if (item && item.type !== ProjectItemType.BIN && cfg.match(item)) {
                             try {
                                 item.moveBin(targetBin);
-                                $.sleep(50); // slows down process for stability
+                                movedItems++;
+
+                                // update progress in panel
+                                var percent = Math.round((movedItems / totalItems) * 100);
+                                try { if (typeof updateProgress === "function") updateProgress(percent); } catch (e) { }
+
+                                $.sleep(1000); // slows down process for stability
                             } catch (err) {
                                 $.writeln("Failed to move item: " + item.name + " - " + err);
                             }
@@ -321,7 +342,6 @@ function moveItemsToSelectedBins(selectionsJSON) {
                 }
             }
         }
-
         return JSON.stringify({ success: true });
 
     } catch (e) {
