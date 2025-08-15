@@ -1,83 +1,85 @@
 function scanProjectItems() {
     try {
-        alert("Starting scan...");
         if (!app || !app.project) {
             return JSON.stringify({ error: "No active project found" });
         }
 
-        // Helper for old JS engine: check if value is in array
         function inArray(val, arr) {
-            for (var i = 0; i < arr.length; i++) {
-                if (arr[i] === val) return true;
-            }
+            for (var i = 0; i < arr.length; i++) if (arr[i] === val) return true;
             return false;
         }
 
-        // --- CONFIG: Add or remove scan categories here ---
         var scanConfig = [
             {
-                key: "images",
-                label: "Images",
-                match: function (item) {
+                key: "images", label: "Images", match: function (item) {
+                    if (!item || !item.name) return false;
                     var ext = item.name.toLowerCase().split('.').pop();
                     return inArray(ext, ["jpg", "jpeg", "png", "tif", "tiff", "gif", "bmp", "psd"]);
                 }
             },
             {
-                key: "videos",
-                label: "Videos",
-                match: function (item) {
-                    if (item.type === ProjectItemType.SEQUENCE) return false;
+                key: "videos", label: "Videos", match: function (item) {
+                    if (item && item.isSequence && item.isSequence()) return false;
+                    if (!item || !item.name) return false;
                     var ext = item.name.toLowerCase().split('.').pop();
                     return inArray(ext, ["mp4", "mov", "avi", "mxf", "mkv", "wmv"]);
                 }
             },
             {
-                key: "sequences",
-                label: "Sequences",
-                match: function (item) {
-                    try {
-                        return (item && item.isSequence && item.isSequence() === true);
-                    } catch (e) {
-                        return false;
-                    }
+                key: "sequences", label: "Sequences", match: function (item) {
+                    try { return (item && item.isSequence && item.isSequence()); }
+                    catch (e) { return false; }
                 }
             },
             {
-                key: "colorMattes",
-                label: "Color Mattes",
-                match: function (item) {
+                key: "colorMattes", label: "Color Mattes", match: function (item) {
+                    if (!item || !item.name) return false;
                     return item.name.toLowerCase().indexOf("color matte") >= 0;
                 }
             }
         ];
-        // ----------------------------------------------------
 
-        // Initialize counts dynamically
-        var counts = {};
+        var result = {};
         for (var i = 0; i < scanConfig.length; i++) {
-            counts[scanConfig[i].key] = 0;
+            result[scanConfig[i].key] = { label: scanConfig[i].label, count: 0 };
         }
 
-        // Traverse bins recursively
         function traverse(folder) {
-            for (var i = 0; i < folder.children.numItems; i++) {
-                var item = folder.children[i];
-                if (item.type === ProjectItemType.BIN) {
-                    traverse(item);
+            for (var c = 0; c < folder.children.numItems; c++) {
+                var it = folder.children[c];
+                if (it && it.type === ProjectItemType.BIN) {
+                    traverse(it);
                 } else {
-                    for (var j = 0; j < scanConfig.length; j++) {
-                        if (scanConfig[j].match(item)) {
-                            counts[scanConfig[j].key]++;
+                    for (var s = 0; s < scanConfig.length; s++) {
+                        if (scanConfig[s].match(it)) {
+                            result[scanConfig[s].key].count++;
                         }
                     }
                 }
             }
         }
-
         traverse(app.project.rootItem);
 
-        return JSON.stringify(counts);
+        return JSON.stringify(result);
+    } catch (e) {
+        return JSON.stringify({ error: e.toString() });
+    }
+}
+
+function getRootBins() {
+    try {
+        if (!app || !app.project) {
+            return JSON.stringify({ error: "No active project found" });
+        }
+        var root = app.project.rootItem;
+        var out = { bins: [] };
+        for (var i = 0; i < root.children.numItems; i++) {
+            var child = root.children[i];
+            if (child && child.type === ProjectItemType.BIN) {
+                out.bins.push({ name: child.name, index: i });
+            }
+        }
+        return JSON.stringify(out);
     } catch (e) {
         return JSON.stringify({ error: e.toString() });
     }

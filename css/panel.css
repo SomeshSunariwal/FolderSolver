@@ -277,13 +277,155 @@ body {
     background-color: rgba(255, 255, 255, 0.05);
 }
 
-.item-name {
-    flex: 1;
-    text-align: left;
-}
-
 .item-count {
     flex-shrink: 0;
     font-weight: bold;
     color: #ccc;
+}
+
+.sorter-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+}
+
+.sorter-item {
+    border-bottom: 1px solid #444;
+}
+
+.sorter-row {
+    display: flex;
+    align-items: center;
+    /* vertical center */
+    gap: 12px;
+    /* breathing space between name & count */
+    width: 100%;
+    padding: 8px 0;
+    cursor: pointer;
+}
+
+
+/* picker block */
+.picker {
+    padding: 8px 0 6px;
+    border-top: 1px dashed #3a3a3a;
+}
+
+.picker-toggle {
+    color: #6a8cff;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.item-name {
+    font-weight: 500;
+}
+
+.selected-line {
+    font-size: 13px;
+    opacity: 0.9;
+}
+
+.picker.hidden {
+    display: none;
+}
+
+.folder-list {
+    list-style: none;
+    margin: 4px 0 0 0;
+    padding: 0;
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+.folder-item {
+    padding: 4px 6px;
+    border-radius: 4px;
+}
+
+.folder-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+    cursor: pointer;
+}
+
+.folder-item--selected {
+    outline: 1px solid #6a8cff;
+    background: rgba(106, 140, 255, 0.1);
+}
+
+.folder-item.disabled {
+    opacity: .6;
+    cursor: default;
+}
+
+.sorter-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 8px;
+}
+
+.sorter-table th,
+.sorter-table td {
+    padding: 8px 10px;
+    border-bottom: 1px solid #444;
+    vertical-align: middle;
+}
+
+.sorter-table th {
+    font-weight: 600;
+    text-align: center;
+}
+
+.sorter-table td:first-child,
+/* Count column */
+.sorter-table th:first-child {
+    width: 60px;
+    text-align: center;
+}
+
+.sorter-table td:nth-child(2),
+/* Type column */
+.sorter-table th:nth-child(2) {
+    text-align: left;
+    width: 40%;
+}
+
+.sorter-table td:nth-child(3),
+/* Selected Folder column */
+.sorter-table th:nth-child(3) {
+    text-align: left;
+}
+
+.item-count {
+    font-weight: 700;
+    color: #ccc;
+    min-width: 3ch;
+}
+
+.selected-line {
+    font-size: 13px;
+    opacity: 0.9;
+    margin-bottom: 4px;
+}
+
+div.sorter-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    border-bottom: 1px solid #444;
+    cursor: pointer;
+}
+
+div.sorter-item:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* Table-specific .sorter-item */
+table.sorter-table .sorter-item {
+    display: table-row;
+    /* reset back to proper table row */
+    border-bottom: 1px solid #444;
+    cursor: default;
 }
