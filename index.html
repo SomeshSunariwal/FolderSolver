@@ -12,8 +12,9 @@
     <div class="panel">
 
         <!-- Top toolbar -->
-        <header class="toolbar toolbar--top">
+        <header class="toolbar toolbar--top header--style">
             <button id="btnAddTop" class="btn btn--md btn--primary">+ Add</button>
+            <button id="btnAutoSort" class="btn btn--md btn--secondary">Sorter</button>
         </header>
 
         <section class="box">
@@ -28,13 +29,26 @@
         </footer>
     </div>
 
+    <!-- Modal for Auto Sort -->
+    <div id="sorterModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close" id="closeSorterModal">&times;</span>
+            <h2>Auto Sort Scan</h2>
+            <div id="sorterResults">
+                <!-- Scan results will appear here -->
+            </div>
+        </div>
+    </div>
+
     <!-- Scripts kept for later wiring; no behavior implemented in this step -->
     <script src="./jsx/extendscript.jsx"></script>
+    <script src="./jsx/autosortscan.jsx"></script>
     <script src="./lib/CSInterface.js"></script>
     <script src="./lib/jquery-1.9.1.js"></script>
     <script src="./lib/Vulcan.js"></script>
     <script src="./lib/CEPEngine_extensions.js"></script>
     <script src="./log/logging.js"></script>
+    <script src="./js/autosortscan.js"></script>
     <script src="./js/main.js"></script>
 </body>
 
