@@ -12,9 +12,10 @@
     <div class="panel">
 
         <!-- Top toolbar -->
-        <header class="toolbar toolbar--top header--style">
-            <button id="btnAddTop" class="btn btn--md btn--primary">+ Add</button>
-            <button id="btnAutoSort" class="btn btn--md btn--secondary">Sorter</button>
+        <header class="toolbar toolbar--top header--style" style="display: flex; justify-content: flex-end; gap: 8px;">
+            <button id="btnAddTop" class="btn btn--md btn--primary" style="margin-right:auto;">+ Add</button>
+            <button id="btnCountResources" class="btn btn--md btn--secondary">Count Resources</button>
+            <button id="btnAutoSort" class="btn btn--md btn--secondary">Auto Arrange</button>
         </header>
 
         <section class="box">
@@ -25,6 +26,7 @@
 
         <!-- Bottom toolbar (centered "Add to Project") -->
         <footer class="toolbar toolbar--bottom toolbar--center">
+            <button id="btnReset" class="btn btn--md btn--secondary">Reset Folders</button>
             <button id="btnAddToProject" class="btn btn--md btn--primary">Add to Project</button>
             <span class="footer-copyright">Copyright © Somesh</span>
         </footer>
