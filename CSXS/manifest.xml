@@ -28,7 +28,9 @@
                 <Resources>
                     <MainPath>./index.html</MainPath>
                     <ScriptPath>./jsx/extendscript.jsx</ScriptPath>
+                    <ScriptPath>./jsx/autosortscan.jsx</ScriptPath>
                     <ScriptPath>./log/logging.js</ScriptPath>
+                    <ScriptPath>./js/autosortscan.js</ScriptPath>
                     <ScriptPath>./js/main.js</ScriptPath>
                     <CEFCommandLine>
                         <Parameter>--enable-nodejs</Parameter>
