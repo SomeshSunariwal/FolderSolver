@@ -440,3 +440,23 @@ table.sorter-table .sorter-item {
 .modal-footer .btn {
     min-width: 150px;
 }
+
+.toolbar--bottom {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.toolbar--bottom button {
+    z-index: 1;
+    /* keep button clickable above the text */
+}
+
+.toolbar--bottom span {
+    position: absolute;
+    right: 10px;
+    color: #aaa;
+    /* light gray */
+    font-size: 12px;
+}
