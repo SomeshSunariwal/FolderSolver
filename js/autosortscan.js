@@ -45,6 +45,7 @@
         Object.keys(counts).forEach(function (key) {
             const label = counts[key].label || key;
             const count = (typeof counts[key].count === "number") ? counts[key].count : 0;
+            if (count <= 0) return;
             const selectedName = (selectedTargets[key] && selectedTargets[key].name) ? selectedTargets[key].name : "None";
 
             html += `
