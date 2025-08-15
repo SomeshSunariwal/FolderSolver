@@ -45,6 +45,7 @@
         Object.keys(counts).forEach(function (key) {
             const label = counts[key].label || key;
             const count = (typeof counts[key].count === "number") ? counts[key].count : 0;
+            if (count <= 0) return;
             const selectedName = (selectedTargets[key] && selectedTargets[key].name) ? selectedTargets[key].name : "None";
 
             html += `
@@ -65,6 +66,30 @@
         html += `</tbody></table>`;
         sorterResults.innerHTML = html;
     }
+
+    window.__adobe_cep__.addEventListener("progressUpdate", function (e) {
+        updateProgress(parseInt(e.data, 10));
+    });
+
+    function updateProgress(percent) {
+        var container = document.getElementById("progressContainer");
+        var bar = document.getElementById("progressBar");
+        var text = document.getElementById("progressText");
+
+        container.style.display = "block";
+        bar.style.width = percent + "%";
+        text.textContent = percent + "%";
+
+        if (percent >= 100) {
+            setTimeout(() => {
+                container.style.display = "none";
+                bar.style.width = "0%";
+                text.textContent = "0%";
+            }, 500); // hide automatically after 0.5s
+        }
+    }
+
+
 
     // Handle all clicks inside the table
     sorterResults.addEventListener("click", function (e) {
@@ -156,9 +181,6 @@
             return;
         }
 
-        // DEBUG: show selections
-        alert("Selected targets:\n" + JSON.stringify(selectedTargets, null, 2));
-
         // Call your JSX function to move items
         csInterface.evalScript(`moveItemsToSelectedBins('${JSON.stringify(selectedTargets)}')`, function (res) {
             try {
@@ -177,6 +199,51 @@
         selectedTargets = {};
         sorterModal.style.display = "none";
     });
+
+    btnCountResources.addEventListener("click", function () {
+        resourceResults.innerHTML = "<p>Scanning project...</p>";
+        resourceModal.style.display = "block";
+
+        csInterface.evalScript(`scanProjectItemsRecursive()`, function (res) {
+            try {
+                var data = JSON.parse(res);
+
+                let html = `<table class="sorter-table">
+                                <thead>
+                                    <tr>
+                                        <th style="text-align:left;">Resource Type</th>
+                                        <th style="width:60px; text-align:center;">Count</th>
+                                    </tr>
+                                </thead>
+                                <tbody>`;
+                Object.keys(data).forEach(function (key) {
+                    const label = data[key].label || key;
+                    const count = data[key].count || 0;
+                    if (count <= 0) return; // skip empty counts
+                    html += `<tr>
+                                <td style="text-align:left;">${label}</td>
+                                <td style="text-align:center;">${count}</td>
+                             </tr>`;
+                });
+                html += `</tbody></table>`;
+
+                resourceResults.innerHTML = html;
+
+            } catch (e) {
+                resourceResults.innerHTML = "<p style='color:red'>Failed to scan resources</p>";
+                console.error("Resource scan error:", e, res);
+            }
+        });
+    });
+
+    // Close resource modal
+    closeResourceModal.addEventListener("click", function () {
+        resourceModal.style.display = "none";
+    });
+    window.addEventListener("click", function (evt) {
+        if (evt.target === resourceModal) resourceModal.style.display = "none";
+    });
+
 
     // Expose selections for other scripts
     window.__autoSortSelections = function () { return JSON.parse(JSON.stringify(selectedTargets)); };

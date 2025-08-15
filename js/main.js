@@ -310,6 +310,48 @@
         }
     });
 
+
+    // Reset Folders to Default
+    document.getElementById("btnReset").addEventListener("click", function () {
+        // 1️⃣ Define default folder list
+        var defaultFolders = [
+            "Adjustment Layers",
+            "Audios",
+            "Color Matte",
+            "Images",
+            "Stock Videos",
+            "Sequences",
+            "Mogrt"
+        ];
+
+        // 2️⃣ Clear current UI
+        folderListEl.innerHTML = "";
+
+        // 3️⃣ Add default folders to UI
+        defaultFolders.forEach(function (name) {
+            var li = createEditingRow(name);
+            folderListEl.appendChild(li);
+        });
+
+        // 4️⃣ Save to config.json
+        ensureConfigDirExists();
+        try {
+            var json = JSON.stringify(defaultFolders, null, 4);
+            var result = window.cep.fs.writeFile(configFilePath, json);
+            if (result.err !== 0) {
+                console.error("Error saving default folders:", result);
+                alert("Failed to reset to default folders.");
+            } else {
+                // Optional: confirmation message
+                document.getElementById("sorterResults").innerHTML = "<p style='color:green'>Folders reset to default.</p>";
+            }
+        } catch (e) {
+            console.error("Error writing default folders:", e);
+            alert("Error resetting folders.");
+        }
+    });
+
+
     // ====== INIT ======
     loadFolderList();
 
