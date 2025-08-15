@@ -460,3 +460,19 @@ table.sorter-table .sorter-item {
     /* light gray */
     font-size: 12px;
 }
+
+.btn--large {
+    padding: 8px 8px;
+    font-size: 14px;
+    font-weight: regular;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.btn--large:hover {
+    background-color: #0056d2;
+    /* Slightly darker on hover */
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
+}

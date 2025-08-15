@@ -299,27 +299,25 @@ function moveItemsToSelectedBins(selectionsJSON) {
             return null;
         }
 
-        function traverseAndMove(folder, matchFn, targetBin) {
-            for (var c = folder.children.numItems - 1; c >= 0; c--) {
-                var it = folder.children[c];
-                if (it && it.type === ProjectItemType.BIN) {
-                    traverseAndMove(it, matchFn, targetBin);
-                } else {
-                    if (matchFn(it)) {
-                        it.moveBin(targetBin);
-                    }
-                }
-            }
-        }
-
-        // Process each type in sequence
+        // Only process items directly under root
         for (var i = 0; i < scanConfig.length; i++) {
             var cfg = scanConfig[i];
             var sel = selections[cfg.key];
             if (sel && typeof sel.index === "number") {
                 var targetBin = getRootBinByIndex(sel.index);
                 if (targetBin) {
-                    traverseAndMove(root, cfg.match, targetBin);
+                    // Loop backwards to prevent skipping items when moving
+                    for (var c = root.children.numItems - 1; c >= 0; c--) {
+                        var item = root.children[c];
+                        if (item && item.type !== ProjectItemType.BIN && cfg.match(item)) {
+                            try {
+                                item.moveBin(targetBin);
+                                $.sleep(50); // slows down process for stability
+                            } catch (err) {
+                                $.writeln("Failed to move item: " + item.name + " - " + err);
+                            }
+                        }
+                    }
                 }
             }
         }

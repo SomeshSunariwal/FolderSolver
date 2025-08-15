@@ -157,9 +157,6 @@
             return;
         }
 
-        // DEBUG: show selections
-        alert("Selected targets:\n" + JSON.stringify(selectedTargets, null, 2));
-
         // Call your JSX function to move items
         csInterface.evalScript(`moveItemsToSelectedBins('${JSON.stringify(selectedTargets)}')`, function (res) {
             try {
