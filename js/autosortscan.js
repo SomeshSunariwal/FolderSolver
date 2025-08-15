@@ -179,6 +179,51 @@
         sorterModal.style.display = "none";
     });
 
+    btnCountResources.addEventListener("click", function () {
+        resourceResults.innerHTML = "<p>Scanning project...</p>";
+        resourceModal.style.display = "block";
+
+        csInterface.evalScript(`scanProjectItemsRecursive()`, function (res) {
+            try {
+                var data = JSON.parse(res);
+
+                let html = `<table class="sorter-table">
+                                <thead>
+                                    <tr>
+                                        <th style="text-align:left;">Resource Type</th>
+                                        <th style="width:60px; text-align:center;">Count</th>
+                                    </tr>
+                                </thead>
+                                <tbody>`;
+                Object.keys(data).forEach(function (key) {
+                    const label = data[key].label || key;
+                    const count = data[key].count || 0;
+                    if (count <= 0) return; // skip empty counts
+                    html += `<tr>
+                                <td style="text-align:left;">${label}</td>
+                                <td style="text-align:center;">${count}</td>
+                             </tr>`;
+                });
+                html += `</tbody></table>`;
+
+                resourceResults.innerHTML = html;
+
+            } catch (e) {
+                resourceResults.innerHTML = "<p style='color:red'>Failed to scan resources</p>";
+                console.error("Resource scan error:", e, res);
+            }
+        });
+    });
+
+    // Close resource modal
+    closeResourceModal.addEventListener("click", function () {
+        resourceModal.style.display = "none";
+    });
+    window.addEventListener("click", function (evt) {
+        if (evt.target === resourceModal) resourceModal.style.display = "none";
+    });
+
+
     // Expose selections for other scripts
     window.__autoSortSelections = function () { return JSON.parse(JSON.stringify(selectedTargets)); };
 })();
