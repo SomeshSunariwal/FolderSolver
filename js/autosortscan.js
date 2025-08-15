@@ -67,21 +67,25 @@
         sorterResults.innerHTML = html;
     }
 
+    window.__adobe_cep__.addEventListener("progressUpdate", function (e) {
+        updateProgress(parseInt(e.data, 10));
+    });
+
     function updateProgress(percent) {
-        alert("Progress: " + percent + "%");
         var container = document.getElementById("progressContainer");
         var bar = document.getElementById("progressBar");
+        var text = document.getElementById("progressText");
 
-        if (container && bar) {
-            container.style.display = "block"; // show bar
-            bar.style.width = percent + "%";   // update width
+        container.style.display = "block";
+        bar.style.width = percent + "%";
+        text.textContent = percent + "%";
 
-            if (percent >= 100) {
-                setTimeout(function () {
-                    document.getElementById("progressContainer").style.display = "none";
-                    document.getElementById("progressBar").style.width = "0%";
-                }, 500);
-            }
+        if (percent >= 100) {
+            setTimeout(() => {
+                container.style.display = "none";
+                bar.style.width = "0%";
+                text.textContent = "0%";
+            }, 500); // hide automatically after 0.5s
         }
     }
 

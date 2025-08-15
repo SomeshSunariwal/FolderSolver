@@ -331,7 +331,10 @@ function moveItemsToSelectedBins(selectionsJSON) {
 
                                 // update progress in panel
                                 var percent = Math.round((movedItems / totalItems) * 100);
-                                try { if (typeof updateProgress === "function") updateProgress(percent); } catch (e) { }
+                                var e = new CSXSEvent();
+                                e.type = "progressUpdate";
+                                e.data = percent;
+                                e.dispatch();
 
                                 $.sleep(1000); // slows down process for stability
                             } catch (err) {

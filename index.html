@@ -24,8 +24,12 @@
             </ul>
         </section>
 
-        <div id="progressContainer" style="display:none; height:6px; width:100%; background:#333; margin-bottom:4px;">
-            <div id="progressBar" style="height:100%; width:0%; background:#4caf50; transition: width 0.2s;"></div>
+        <div id="progressContainer" style="display:none; margin:10px 0;">
+            <div style="position: relative; width: 100%; background: #ddd; height: 25px; border-radius: 5px;">
+                <div id="progressBar" style="width: 0%; height: 100%; background: #4caf50; border-radius:5px;"></div>
+                <span id="progressText"
+                    style="position: absolute; right: 5px; top: 0; height: 100%; display:flex; align-items:center; font-weight:bold; color:#fff;">0%</span>
+            </div>
         </div>
 
         <!-- Bottom toolbar (centered "Add to Project") -->
