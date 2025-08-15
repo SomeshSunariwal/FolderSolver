@@ -39,32 +39,32 @@ function scanProjectItems() {
             }
         ];
 
+        // Initialize result counts
         var result = {};
         for (var i = 0; i < scanConfig.length; i++) {
             result[scanConfig[i].key] = { label: scanConfig[i].label, count: 0 };
         }
 
-        function traverse(folder) {
-            for (var c = 0; c < folder.children.numItems; c++) {
-                var it = folder.children[c];
-                if (it && it.type === ProjectItemType.BIN) {
-                    traverse(it);
-                } else {
-                    for (var s = 0; s < scanConfig.length; s++) {
-                        if (scanConfig[s].match(it)) {
-                            result[scanConfig[s].key].count++;
-                        }
+        var root = app.project.rootItem;
+        for (var c = 0; c < root.children.numItems; c++) {
+            var it = root.children[c];
+            // Only count items that are NOT bins
+            if (it && it.type !== ProjectItemType.BIN) {
+                for (var s = 0; s < scanConfig.length; s++) {
+                    if (scanConfig[s].match(it)) {
+                        result[scanConfig[s].key].count++;
                     }
                 }
             }
         }
-        traverse(app.project.rootItem);
 
         return JSON.stringify(result);
     } catch (e) {
         return JSON.stringify({ error: e.toString() });
     }
 }
+
+
 
 function getRootBins() {
     try {

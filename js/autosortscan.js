@@ -1,17 +1,19 @@
 (function () {
     var csInterface = new CSInterface();
 
-    // ensure JSX is loaded
+    // Load JSX
     csInterface.evalScript('$.evalFile("' + csInterface.getSystemPath(SystemPath.EXTENSION) + '/jsx/autosortscan.jsx")');
 
     var btnAutoSort = document.getElementById("btnAutoSort");
     var sorterModal = document.getElementById("sorterModal");
     var closeSorterModal = document.getElementById("closeSorterModal");
     var sorterResults = document.getElementById("sorterResults");
+    var btnExecuteTransfer = document.getElementById("btnExecuteTransfer");
 
-    var rootBinsCache = null;                 // [{name, index}, ...]
-    var selectedTargets = {};                 // { images: {name,index}, videos: {...}, ... }
+    var rootBinsCache = null;       // [{name, index}, ...]
+    var selectedTargets = {};       // { images: {name,index}, videos: {...} }
 
+    // Load root bins from After Effects
     function loadRootBins(cb) {
         if (rootBinsCache) { cb(rootBinsCache); return; }
         csInterface.evalScript("getRootBins()", function (res) {
@@ -26,6 +28,7 @@
         });
     }
 
+    // Render the table
     function renderList(counts) {
         let html = `
         <table class="sorter-table">
@@ -37,7 +40,7 @@
                 </tr>
             </thead>
             <tbody>
-    `;
+        `;
 
         Object.keys(counts).forEach(function (key) {
             const label = counts[key].label || key;
@@ -56,150 +59,81 @@
                         </div>
                     </td>
                 </tr>
-                `;
+            `;
         });
 
         html += `</tbody></table>`;
         sorterResults.innerHTML = html;
+    }
 
-        // Click anywhere on row to expand/collapse picker
-        sorterResults.addEventListener("click", function (e) {
-            const row = e.target.closest(".sorter-item");
-            if (!row) return;
+    // Handle all clicks inside the table
+    sorterResults.addEventListener("click", function (e) {
+        const row = e.target.closest(".sorter-item");
+        const folderItem = e.target.closest(".folder-item");
 
+        // === Folder selection ===
+        if (folderItem && !folderItem.classList.contains("disabled")) {
+            const ul = folderItem.closest(".folder-list");
+            const typeKey = folderItem.closest(".sorter-item").getAttribute("data-type");
+
+            // Clear previous selection
+            ul.querySelectorAll(".folder-item").forEach(x => x.classList.remove("folder-item--selected"));
+            folderItem.classList.add("folder-item--selected");
+
+            // Save selection
+            const idx = parseInt(folderItem.getAttribute("data-bin-index"), 10);
+            const name = folderItem.querySelector(".folder-name").textContent;
+            selectedTargets[typeKey] = { index: idx, name: name };
+
+            // Update visible text
+            folderItem.closest(".sorter-item").querySelector(".selected-name").textContent = name;
+
+            return; // stop here if a folder was clicked
+        }
+
+        // === Row click (toggle picker) ===
+        if (row) {
             const picker = row.querySelector(".picker");
             const folderUl = row.querySelector(".folder-list");
-            const typeKey = row.getAttribute("data-type");
 
-            // Collapse all others
+            // Collapse other pickers
             sorterResults.querySelectorAll(".picker").forEach(p => {
                 if (p !== picker) p.classList.add("hidden");
             });
 
-            // Toggle current
+            // Toggle current picker
             const willOpen = picker.classList.contains("hidden");
-            if (willOpen) picker.classList.remove("hidden");
-            else picker.classList.add("hidden");
+            picker.classList.toggle("hidden", !willOpen);
 
-            // Lazy-load folders if opening for first time
+            // Lazy load folders if opening first time
             if (willOpen && folderUl.getAttribute("data-loaded") !== "1") {
                 loadRootBins(function (bins) {
                     let liHtml = "";
+                    const typeKey = row.getAttribute("data-type");
                     for (let b = 0; b < bins.length; b++) {
                         const sel = (selectedTargets[typeKey] && selectedTargets[typeKey].index === bins[b].index) ? " folder-item--selected" : "";
-                        liHtml += `
-                    <li class="folder-item${sel}" data-bin-index="${bins[b].index}">
-                        <span class="folder-name">${bins[b].name}</span>
-                    </li>`;
+                        liHtml += `<li class="folder-item${sel}" data-bin-index="${bins[b].index}" style="cursor:pointer;"><span class="folder-name">${bins[b].name}</span></li>`;
                     }
-                    if (!bins.length) {
-                        liHtml = `<li class="folder-item disabled"><span class="folder-name">No folders found</span></li>`;
-                    }
+                    if (!bins.length) liHtml = `<li class="folder-item disabled"><span class="folder-name">No folders found</span></li>`;
                     folderUl.innerHTML = liHtml;
                     folderUl.setAttribute("data-loaded", "1");
                 });
             }
-        });
-
-        // Folder selection
-        sorterResults.addEventListener("click", function (e) {
-            const item = e.target.closest(".folder-item");
-            if (!item || item.classList.contains("disabled")) return;
-
-            const row = item.closest(".sorter-item");
-            const ul = item.closest(".folder-list");
-            const typeKey = row.getAttribute("data-type");
-
-            // Clear selection in this list
-            ul.querySelectorAll(".folder-item").forEach(x => x.classList.remove("folder-item--selected"));
-            item.classList.add("folder-item--selected");
-
-            // Save selection
-            const idx = parseInt(item.getAttribute("data-bin-index"), 10);
-            const name = item.querySelector(".folder-name").textContent;
-            selectedTargets[typeKey] = { index: idx, name: name };
-
-            // Update visible text in Selected column
-            row.querySelector(".selected-name").textContent = name;
-        });
-
-    }
-
-
-    function attachItemHandlers(itemEl) {
-        var row = itemEl.querySelector(".sorter-row");
-        var picker = itemEl.querySelector(".picker");
-        var folderUl = itemEl.querySelector(".folder-list");
-        var typeKey = itemEl.getAttribute("data-type");
-
-        row.addEventListener("click", function () {
-            var isHidden = picker.classList.contains("hidden");
-
-            // close all pickers
-            var allPickers = sorterResults.querySelectorAll(".picker");
-            for (var j = 0; j < allPickers.length; j++) {
-                allPickers[j].classList.add("hidden");
-            }
-
-            // open only this one if it was hidden
-            if (isHidden) picker.classList.remove("hidden");
-
-            if (folderUl.getAttribute("data-loaded") === "1") return;
-
-            loadRootBins(function (bins) {
-                var liHtml = "";
-                for (var b = 0; b < bins.length; b++) {
-                    var sel = (selectedTargets[typeKey] && selectedTargets[typeKey].index === bins[b].index) ? " folder-item--selected" : "";
-                    liHtml += ''
-                        + '<li class="folder-item' + sel + '" data-bin-index="' + bins[b].index + '">'
-                        + '<span class="folder-name">' + bins[b].name + '</span>'
-                        + '</li>';
-                }
-                if (!bins.length) {
-                    liHtml = '<li class="folder-item disabled"><span class="folder-name">No root folders found</span></li>';
-                }
-                folderUl.innerHTML = liHtml;
-                folderUl.setAttribute("data-loaded", "1");
-
-                var folderItems = folderUl.querySelectorAll(".folder-item");
-                for (var k = 0; k < folderItems.length; k++) {
-                    if (folderItems[k].classList.contains("disabled")) continue;
-                    folderItems[k].addEventListener("click", function () {
-                        var sib = folderUl.querySelectorAll(".folder-item");
-                        for (var s = 0; s < sib.length; s++) { sib[s].classList.remove("folder-item--selected"); }
-                        this.classList.add("folder-item--selected");
-
-                        var idx = parseInt(this.getAttribute("data-bin-index"), 10);
-                        var name = this.querySelector(".folder-name").textContent;
-
-                        selectedTargets[typeKey] = { index: idx, name: name };
-
-                        var selNameEl = itemEl.querySelector(".selected-name");
-                        selNameEl.textContent = name;
-                    });
-                }
-            });
-        });
-    }
+        }
+    });
 
     // Open modal & run scan
     btnAutoSort.addEventListener("click", function () {
-        selectedTargets = {};         // ✅ reset selections
-        rootBinsCache = null;         // ✅ force fresh bin fetch
+        selectedTargets = {};  // reset selections
+        rootBinsCache = null;  // force fresh fetch
         sorterResults.innerHTML = "<p>Scanning project...</p>";
-
         sorterModal.style.display = "block";
-
-        loadRootBins(function () { });
 
         csInterface.evalScript("scanProjectItems()", function (res) {
             try {
                 var data = JSON.parse(res);
-                if (data && !data.error) {
-                    renderList(data);
-                } else {
-                    sorterResults.innerHTML = `<p style='color:red'>${(data && data.error) ? data.error : "Scan failed"}</p>`;
-                }
+                if (data && !data.error) renderList(data);
+                else sorterResults.innerHTML = `<p style='color:red'>${(data && data.error) ? data.error : "Scan failed"}</p>`;
             } catch (e) {
                 console.error("scan parse error:", e, res);
                 sorterResults.innerHTML = "<p style='color:red'>Failed to parse scan results</p>";
@@ -207,42 +141,43 @@
         });
     });
 
+    // Close modal
     closeSorterModal.addEventListener("click", function () {
         sorterModal.style.display = "none";
     });
-
     window.addEventListener("click", function (evt) {
         if (evt.target === sorterModal) sorterModal.style.display = "none";
     });
 
+    // Execute Transfer
+    btnExecuteTransfer.addEventListener("click", function () {
+        if (Object.keys(selectedTargets).length === 0) {
+            alert("No folders selected!");
+            return;
+        }
 
-    // Handle Transfer button click
-    document.getElementById("btnExecuteTransfer").addEventListener("click", function () {
-        // Do your transfer here
-        alert("Transferring:", selectedTargets);
-
+        // DEBUG: show selections
         alert("Selected targets:\n" + JSON.stringify(selectedTargets, null, 2));
 
-        // === RESET EVERYTHING ===
-        selectedTargets = [];
+        // Call your JSX function to move items
+        csInterface.evalScript(`moveItemsToSelectedBins('${JSON.stringify(selectedTargets)}')`, function (res) {
+            try {
+                var data = JSON.parse(res);
+                if (data.success) {
+                    alert("Items moved successfully!");
+                } else if (data.error) {
+                    alert("Error: " + data.error);
+                }
+            } catch (e) {
+                alert("Unexpected error: " + res);
+            }
+        });
 
-        // Uncheck all checkboxes
-        document.querySelectorAll("#sorterResults input[type='checkbox']").forEach(cb => cb.checked = false);
-
-        // If you want to clear the list completely:
-        // document.getElementById("sorterResults").innerHTML = "";
-
-        // Close the modal
-        document.getElementById("sorterModal").style.display = "none";
+        // Reset everything
+        selectedTargets = {};
+        sorterModal.style.display = "none";
     });
 
-    document.getElementById("closeSorterModal").addEventListener("click", function () {
-        selectedTargets = [];
-        document.querySelectorAll("#sorterResults input[type='checkbox']").forEach(cb => cb.checked = false);
-        document.getElementById("sorterModal").style.display = "none";
-    });
-
-
-    // (Optional) expose selections for next step (moving)
+    // Expose selections for other scripts
     window.__autoSortSelections = function () { return JSON.parse(JSON.stringify(selectedTargets)); };
 })();
