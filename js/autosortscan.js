@@ -184,17 +184,22 @@
 
     // Open modal & run scan
     btnAutoSort.addEventListener("click", function () {
-        sorterModal.style.display = "block";
+        selectedTargets = {};         // ✅ reset selections
+        rootBinsCache = null;         // ✅ force fresh bin fetch
         sorterResults.innerHTML = "<p>Scanning project...</p>";
 
-        // fetch bins early (cache) so picker feels instant
-        loadRootBins(function () { /* no-op; cache warmed */ });
+        sorterModal.style.display = "block";
+
+        loadRootBins(function () { });
 
         csInterface.evalScript("scanProjectItems()", function (res) {
             try {
                 var data = JSON.parse(res);
-                if (data && !data.error) { renderList(data); }
-                else { sorterResults.innerHTML = "<p style='color:red'>" + (data && data.error ? data.error : "Scan failed") + "</p>"; }
+                if (data && !data.error) {
+                    renderList(data);
+                } else {
+                    sorterResults.innerHTML = `<p style='color:red'>${(data && data.error) ? data.error : "Scan failed"}</p>`;
+                }
             } catch (e) {
                 console.error("scan parse error:", e, res);
                 sorterResults.innerHTML = "<p style='color:red'>Failed to parse scan results</p>";
@@ -210,10 +215,33 @@
         if (evt.target === sorterModal) sorterModal.style.display = "none";
     });
 
+
+    // Handle Transfer button click
     document.getElementById("btnExecuteTransfer").addEventListener("click", function () {
-        alert("Selected targets:", selectedTargets);
-        // TODO: Call JSX move function here
+        // Do your transfer here
+        alert("Transferring:", selectedTargets);
+
+        alert("Selected targets:\n" + JSON.stringify(selectedTargets, null, 2));
+
+        // === RESET EVERYTHING ===
+        selectedTargets = [];
+
+        // Uncheck all checkboxes
+        document.querySelectorAll("#sorterResults input[type='checkbox']").forEach(cb => cb.checked = false);
+
+        // If you want to clear the list completely:
+        // document.getElementById("sorterResults").innerHTML = "";
+
+        // Close the modal
+        document.getElementById("sorterModal").style.display = "none";
     });
+
+    document.getElementById("closeSorterModal").addEventListener("click", function () {
+        selectedTargets = [];
+        document.querySelectorAll("#sorterResults input[type='checkbox']").forEach(cb => cb.checked = false);
+        document.getElementById("sorterModal").style.display = "none";
+    });
+
 
     // (Optional) expose selections for next step (moving)
     window.__autoSortSelections = function () { return JSON.parse(JSON.stringify(selectedTargets)); };
