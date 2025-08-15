@@ -3,9 +3,32 @@
 The Folder Solver plugin for Adobe Premiere Pro makes project organization effortless. With just one click, you can instantly create multiple predefined folders inside your project, eliminating the repetitive task of manually adding bins each time you start editing. This tool is perfect for video editors who want to maintain a consistent project structure and save valuable time. Whether you work on commercials, films, or YouTube videos, Folder Solver ensures your workspace is clean and organized from the start. Simple, fast, and reliable — it’s the ultimate time-saving companion for any editor who values speed and efficiency in their workflow.
 
 ### User Interface
-![image1](./Images/Image1.png)
 
-![image1](./Images/Image1.png)
+<img src="./Images/Image01.png" alt="Image01" width="50%" />
+
+----
+
+<img src="./Images/Image02.png" alt="Image02" width="50%" />
+
+----
+
+<img src="./Images/Image03.png" alt="Image03" width="50%" />
+
+----
+
+<img src="./Images/Image04.png" alt="Image04" width="50%" />
+
+----
+
+<img src="./Images/Image05.png" alt="Image05" width="50%" />
+
+----
+
+<img src="./Images/Image06.png" alt="Image06" width="50%" />
+
+----
+
+<img src="./Images/Image07.png" alt="Image07" width="50%" />
 
 #### Currunt Features 
 1. You can manage folders
