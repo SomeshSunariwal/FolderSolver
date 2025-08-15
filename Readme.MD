@@ -4,31 +4,31 @@ The Folder Solver plugin for Adobe Premiere Pro makes project organization effor
 
 ### User Interface
 
-<img src="./Images/Image01.png" alt="Image01" width="50%" />
+<img src="./Images/Image01.png" alt="Image01" width="75%" />
 
 ----
 
-<img src="./Images/Image02.png" alt="Image02" width="50%" />
+<img src="./Images/Image02.png" alt="Image02" width="75%" />
 
 ----
 
-<img src="./Images/Image03.png" alt="Image03" width="50%" />
+<img src="./Images/Image03.png" alt="Image03" width="75%" />
 
 ----
 
-<img src="./Images/Image04.png" alt="Image04" width="50%" />
+<img src="./Images/Image04.png" alt="Image04" width="75%" />
 
 ----
 
-<img src="./Images/Image05.png" alt="Image05" width="50%" />
+<img src="./Images/Image05.png" alt="Image05" width="75%" />
 
 ----
 
-<img src="./Images/Image06.png" alt="Image06" width="50%" />
+<img src="./Images/Image06.png" alt="Image06" width="75%" />
 
 ----
 
-<img src="./Images/Image07.png" alt="Image07" width="50%" />
+<img src="./Images/Image07.png" alt="Image07" width="75%" />
 
 #### Currunt Features 
 1. You can manage folders
