@@ -4,11 +4,15 @@
     // Load the ExtendScript file into Premiere
     csInterface.evalScript('$.evalFile("' + csInterface.getSystemPath(SystemPath.EXTENSION) + '/jsx/extendscript.jsx")');
 
+    // === Global Config File Path ===
+    var userDataDir = csInterface.getSystemPath(SystemPath.USER_DATA);
+    var configFilePath = userDataDir + "/Adobe/CEP/extensions/FolderSolver/config.json";
+
     var folderListEl = document.getElementById("folderList");
     var btnAddTop = document.getElementById("btnAddTop");
     var btnAddToProject = document.getElementById("btnAddToProject");
 
-    // ====== SAVE / LOAD ======
+    // ====== SAVE / LOAD (GLOBAL) ======
     function collectFolderNames() {
         var names = [];
         var items = folderListEl.querySelectorAll(".list-item");
@@ -26,22 +30,57 @@
         return names;
     }
 
+
+    function ensureConfigDirExists() {
+        var dirPath = userDataDir + "/Adobe/CEP/extensions/FolderSolver";
+        var dirCheck = window.cep.fs.readdir(dirPath);
+        if (dirCheck.err !== 0) {
+            // create directory
+            var createDirResult = window.cep.fs.makedir(dirPath);
+            if (createDirResult.err !== 0) {
+                console.error("Failed to create config directory", createDirResult);
+            }
+        }
+    }
+
     function saveFolderList() {
+        ensureConfigDirExists();
         const names = collectFolderNames();
-        localStorage.setItem('savedFolderNames', JSON.stringify(names));
+        try {
+            var json = JSON.stringify(names, null, 4);
+            var result = window.cep.fs.writeFile(configFilePath, json);
+            if (result.err !== 0) {
+                console.error("Error saving folder list:", result);
+            }
+        } catch (e) {
+            console.error("Error in saveFolderList:", e);
+        }
+    }
+
+    function ensureConfigDirExists() {
+        var dirPath = userDataDir + "/Adobe/CEP/extensions/FolderSolver";
+        var dirCheck = window.cep.fs.readdir(dirPath);
+        if (dirCheck.err !== 0) {
+            // create directory
+            var createDirResult = window.cep.fs.makedir(dirPath);
+            if (createDirResult.err !== 0) {
+                console.error("Failed to create config directory", createDirResult);
+            }
+        }
     }
 
     function loadFolderList() {
-        const saved = localStorage.getItem('savedFolderNames');
-        if (!saved) return;
         try {
-            const names = JSON.parse(saved);
-            names.forEach(name => {
-                const li = document.createElement("li");
-                li.className = "list-item";
-                commitEdit(li, name);
-                folderListEl.appendChild(li);
-            });
+            var result = window.cep.fs.readFile(configFilePath);
+            if (result.err === 0 && result.data) {
+                const names = JSON.parse(result.data);
+                names.forEach(name => {
+                    const li = document.createElement("li");
+                    li.className = "list-item";
+                    commitEdit(li, name);
+                    folderListEl.appendChild(li);
+                });
+            }
         } catch (e) {
             console.error("Failed to load folder list", e);
         }
@@ -253,10 +292,9 @@
             return;
         }
 
-        // Show confirmation box
         var proceed = confirm("Are you sure you want to add these folders to the project?");
         if (!proceed) {
-            return; // Skip if user clicks Cancel
+            return;
         }
 
         saveFolderList();
