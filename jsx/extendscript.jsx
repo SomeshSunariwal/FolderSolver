@@ -5,9 +5,13 @@ function addFoldersToPremiere(jsonStr) {
             ? JSON.parse(jsonStr)
             : eval(jsonStr);
 
-        if (!folderNames || !folderNames.length) return "No folders provided.";
+        if (!folderNames || !folderNames.length) {
+            return "No folders provided."
+        };
 
-        if (!app || !app.project) return "No active project found.";
+        if (!app || !app.project) {
+            return "No active project found."
+        };
 
         var root = app.project.rootItem;
         var created = 0, skipped = 0;
@@ -25,7 +29,9 @@ function addFoldersToPremiere(jsonStr) {
 
         for (var i = 0; i < folderNames.length; i++) {
             var name = String(folderNames[i] || "").replace(/^\s+|\s+$/g, "");
-            if (!name) continue;
+            if (!name) {
+                continue
+            };
 
             if (binExists(name)) {
                 skipped++;

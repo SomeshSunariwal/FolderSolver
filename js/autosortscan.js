@@ -15,14 +15,16 @@
 
     // Load root bins from After Effects
     function loadRootBins(cb) {
-        if (rootBinsCache) { cb(rootBinsCache); return; }
+        if (rootBinsCache) {
+            cb(rootBinsCache); return;
+        }
         csInterface.evalScript("getRootBins()", function (res) {
             try {
                 var data = JSON.parse(res);
                 if (data && data.bins) { rootBinsCache = data.bins; cb(rootBinsCache); }
                 else { cb([]); }
             } catch (e) {
-                console.error("Failed to parse getRootBins:", e, res);
+                alert("Failed to parse getRootBins:", e, res);
                 cb([]);
             }
         });
@@ -45,7 +47,9 @@
         Object.keys(counts).forEach(function (key) {
             const label = counts[key].label || key;
             const count = (typeof counts[key].count === "number") ? counts[key].count : 0;
-            if (count <= 0) return;
+            if (count <= 0) {
+                return;
+            }
             const selectedName = (selectedTargets[key] && selectedTargets[key].name) ? selectedTargets[key].name : "None";
 
             html += `
@@ -88,8 +92,6 @@
             }, 500); // hide automatically after 0.5s
         }
     }
-
-
 
     // Handle all clicks inside the table
     sorterResults.addEventListener("click", function (e) {
@@ -157,22 +159,18 @@
         csInterface.evalScript("scanProjectItems()", function (res) {
             try {
                 var data = JSON.parse(res);
-                if (data && !data.error) renderList(data);
-                else sorterResults.innerHTML = `<p style='color:red'>${(data && data.error) ? data.error : "Scan failed"}</p>`;
+                if (data && !data.error) {
+                    renderList(data);
+                } else {
+                    sorterResults.innerHTML = `<p style='color:red'>${(data && data.error) ? data.error : "Scan failed"}</p>`;
+                }
             } catch (e) {
-                console.error("scan parse error:", e, res);
+                alert("scan parse error:", e, res);
                 sorterResults.innerHTML = "<p style='color:red'>Failed to parse scan results</p>";
             }
         });
     });
 
-    // Close modal
-    closeSorterModal.addEventListener("click", function () {
-        sorterModal.style.display = "none";
-    });
-    window.addEventListener("click", function (evt) {
-        if (evt.target === sorterModal) sorterModal.style.display = "none";
-    });
 
     // Execute Transfer
     btnExecuteTransfer.addEventListener("click", function () {
@@ -219,7 +217,9 @@
                 Object.keys(data).forEach(function (key) {
                     const label = data[key].label || key;
                     const count = data[key].count || 0;
-                    if (count <= 0) return; // skip empty counts
+                    if (count <= 0) {
+                        return
+                    }; // skip empty counts
                     html += `<tr>
                                 <td style="text-align:left;">${label}</td>
                                 <td style="text-align:center;">${count}</td>
@@ -231,7 +231,7 @@
 
             } catch (e) {
                 resourceResults.innerHTML = "<p style='color:red'>Failed to scan resources</p>";
-                console.error("Resource scan error:", e, res);
+                alert("Resource scan error:", e, res);
             }
         });
     });
@@ -240,11 +240,25 @@
     closeResourceModal.addEventListener("click", function () {
         resourceModal.style.display = "none";
     });
+
     window.addEventListener("click", function (evt) {
         if (evt.target === resourceModal) resourceModal.style.display = "none";
     });
 
+    // Close modal
+    closeSorterModal.addEventListener("click", function () {
+        sorterModal.style.display = "none";
+    });
+
+    window.addEventListener("click", function (evt) {
+        if (evt.target === sorterModal) {
+            sorterModal.style.display = "none";
+        }
+    });
 
     // Expose selections for other scripts
-    window.__autoSortSelections = function () { return JSON.parse(JSON.stringify(selectedTargets)); };
+    window.__autoSortSelections = function () {
+        return JSON.parse(JSON.stringify(selectedTargets));
+    };
+
 })();

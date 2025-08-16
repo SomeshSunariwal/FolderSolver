@@ -38,7 +38,7 @@
             // create directory
             var createDirResult = window.cep.fs.makedir(dirPath);
             if (createDirResult.err !== 0) {
-                console.error("Failed to create config directory", createDirResult);
+                alert("Failed to create config directory", createDirResult);
             }
         }
     }
@@ -50,10 +50,10 @@
             var json = JSON.stringify(names, null, 4);
             var result = window.cep.fs.writeFile(configFilePath, json);
             if (result.err !== 0) {
-                console.error("Error saving folder list:", result);
+                alert("Error saving folder list:", result);
             }
         } catch (e) {
-            console.error("Error in saveFolderList:", e);
+            alert("Error in saveFolderList:", e);
         }
     }
 
@@ -64,174 +64,92 @@
             // create directory
             var createDirResult = window.cep.fs.makedir(dirPath);
             if (createDirResult.err !== 0) {
-                console.error("Failed to create config directory", createDirResult);
+                alert("Failed to create config directory", createDirResult);
             }
-        }
-    }
-
-    function loadFolderList() {
-        try {
-            var result = window.cep.fs.readFile(configFilePath);
-            if (result.err === 0 && result.data) {
-                const names = JSON.parse(result.data);
-                names.forEach(name => {
-                    const li = document.createElement("li");
-                    li.className = "list-item";
-                    commitEdit(li, name);
-                    folderListEl.appendChild(li);
-                });
-            }
-        } catch (e) {
-            console.error("Failed to load folder list", e);
         }
     }
 
     // ====== UI CREATION ======
-    function createEditingRow(initialText) {
-        var li = document.createElement("li");
-        li.className = "list-item";
 
-        var input = document.createElement("input");
-        input.type = "text";
-        input.className = "list-item__edit";
-        input.placeholder = "Enter folder name";
-        if (initialText) input.value = initialText;
-
-        var actionsDiv = document.createElement("div");
-        actionsDiv.className = "list-item__actions";
-
-        var renameBtn = document.createElement("button");
-        renameBtn.className = "icon-btn icon-btn--sm";
-        renameBtn.title = "Rename";
-        renameBtn.setAttribute("aria-label", "Rename");
-        renameBtn.innerHTML = pencilSVG();
-        renameBtn.addEventListener("click", function () {
-            input.focus();
-            input.select();
-        });
-
-        var deleteBtn = document.createElement("button");
-        deleteBtn.className = "icon-btn icon-btn--sm icon-btn--danger";
-        deleteBtn.title = "Delete";
-        deleteBtn.setAttribute("aria-label", "Delete");
-        deleteBtn.textContent = "x";
-        deleteBtn.addEventListener("click", function () {
-            li.remove();
-            saveFolderList();
-        });
-
-        actionsDiv.appendChild(renameBtn);
-        actionsDiv.appendChild(deleteBtn);
-
-        li.appendChild(input);
-        li.appendChild(actionsDiv);
-
-        input.addEventListener("keydown", function (e) {
-            if (e.key === "Enter") {
-                commitEdit(li, input.value);
-            } else if (e.key === "Escape") {
-                li.remove();
-                saveFolderList();
-            }
-        });
-        input.addEventListener("blur", function () {
-            commitEdit(li, input.value);
-        });
-
-        setTimeout(function () { input.focus(); }, 0);
-
-        return li;
+    function createIconButton(title, innerHTML, onClick, extraClass = "") {
+        var btn = document.createElement("button");
+        btn.className = `icon-btn icon-btn--sm ${extraClass}`;
+        btn.title = title;
+        btn.setAttribute("aria-label", title);
+        if (innerHTML) {
+            btn.innerHTML = innerHTML;
+        }
+        btn.addEventListener("click", onClick);
+        return btn;
     }
 
-    function commitEdit(li, rawName) {
+    function createActionsDiv(li, name, isEditing = false) {
+        var div = document.createElement("div");
+        div.className = "list-item__actions";
+
+        var renameBtn = createIconButton("Rename", pencilSVG(), function () {
+            if (isEditing) {
+                li.querySelector("input")?.focus();
+            }
+            else {
+                startRename(li, name);
+            }
+        });
+
+        var deleteBtn = createIconButton("Delete", "x", function () {
+            li.remove();
+            saveFolderList();
+        }, "icon-btn--danger");
+
+        div.appendChild(renameBtn);
+        div.appendChild(deleteBtn);
+        return div;
+    }
+
+    function commitEdit(li, rawName, options = { save: true }) {
         var name = (rawName || "").trim();
         if (!name) {
             li.remove();
-            saveFolderList();
+            if (options.save) {
+                saveFolderList();
+            }
             return;
         }
+
+        li.innerHTML = "";
 
         var span = document.createElement("span");
         span.className = "list-item__name";
         span.textContent = name;
         span.tabIndex = 0;
+        span.addEventListener("dblclick", () => startRename(li, name));
 
-        span.addEventListener("dblclick", function () {
-            startRename(li, name);
-        });
-
-        var actionsDiv = document.createElement("div");
-        actionsDiv.className = "list-item__actions";
-
-        var renameBtn = document.createElement("button");
-        renameBtn.className = "icon-btn icon-btn--sm";
-        renameBtn.title = "Rename";
-        renameBtn.setAttribute("aria-label", "Rename");
-        renameBtn.innerHTML = pencilSVG();
-        renameBtn.addEventListener("click", function () {
-            startRename(li, name);
-        });
-
-        var deleteBtn = document.createElement("button");
-        deleteBtn.className = "icon-btn icon-btn--sm icon-btn--danger";
-        deleteBtn.title = "Delete";
-        deleteBtn.setAttribute("aria-label", "Delete");
-        deleteBtn.textContent = "x";
-        deleteBtn.addEventListener("click", function () {
-            li.remove();
-            saveFolderList();
-        });
-
-        actionsDiv.appendChild(renameBtn);
-        actionsDiv.appendChild(deleteBtn);
-
-        li.innerHTML = "";
         li.appendChild(span);
-        li.appendChild(actionsDiv);
+        li.appendChild(createActionsDiv(li, name));
+
         li.dataset.folderName = name;
 
-        saveFolderList();
+        if (options.save) {
+            saveFolderList();
+        }
     }
 
     function startRename(li, currentName) {
         li.innerHTML = "";
+
         var input = document.createElement("input");
         input.type = "text";
         input.className = "list-item__edit";
         input.value = currentName || "";
 
-        var actionsDiv = document.createElement("div");
-        actionsDiv.className = "list-item__actions";
-
-        var renameBtn = document.createElement("button");
-        renameBtn.className = "icon-btn icon-btn--sm";
-        renameBtn.title = "Rename";
-        renameBtn.setAttribute("aria-label", "Rename");
-        renameBtn.innerHTML = pencilSVG();
-        renameBtn.addEventListener("click", function () {
-            input.focus();
-            input.select();
-        });
-
-        var deleteBtn = document.createElement("button");
-        deleteBtn.className = "icon-btn icon-btn--sm icon-btn--danger";
-        deleteBtn.title = "Delete";
-        deleteBtn.setAttribute("aria-label", "Delete");
-        deleteBtn.textContent = "x";
-        deleteBtn.addEventListener("click", function () {
-            li.remove();
-            saveFolderList();
-        });
-
-        actionsDiv.appendChild(renameBtn);
-        actionsDiv.appendChild(deleteBtn);
-
         li.appendChild(input);
-        li.appendChild(actionsDiv);
+        li.appendChild(createActionsDiv(li, currentName, true));
 
-        setTimeout(function () { input.focus(); input.select(); }, 0);
+        setTimeout(() => {
+            input.focus(); input.select();
+        }, 0);
 
-        input.addEventListener("keydown", function (e) {
+        input.addEventListener("keydown", (e) => {
             if (e.key === "Enter") {
                 commitEdit(li, input.value);
             } else if (e.key === "Escape") {
@@ -243,10 +161,44 @@
                 }
             }
         });
-        input.addEventListener("blur", function () {
-            commitEdit(li, input.value);
-        });
+
+        input.addEventListener("blur", () => commitEdit(li, input.value));
     }
+
+    function createEditingRow(initialText) {
+        var li = document.createElement("li");
+        li.className = "list-item";
+
+        var input = document.createElement("input");
+        input.type = "text";
+        input.className = "list-item__edit";
+        input.placeholder = "Enter folder name";
+
+        if (initialText) {
+            input.value = initialText;
+        }
+
+        li.appendChild(input);
+        li.appendChild(createActionsDiv(li, initialText, true));
+
+        setTimeout(() => {
+            input.focus();
+        }, 0);
+
+        input.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+                commitEdit(li, input.value);
+            } else if (e.key === "Escape") {
+                li.remove();
+                saveFolderList();
+            }
+        });
+
+        input.addEventListener("blur", () => commitEdit(li, input.value));
+
+        return li;
+    }
+
 
     function pencilSVG() {
         return (
@@ -288,7 +240,9 @@
 
         var folderNames = collectFolderNames();
         if (!folderNames.length) {
-            try { alert("No folders to add."); } catch (e) { console.log("No folders to add."); }
+            try {
+                alert("No folders to add.");
+            } catch (e) { console.log("No folders to add."); }
             return;
         }
 
@@ -339,18 +293,32 @@
             var json = JSON.stringify(defaultFolders, null, 4);
             var result = window.cep.fs.writeFile(configFilePath, json);
             if (result.err !== 0) {
-                console.error("Error saving default folders:", result);
-                alert("Failed to reset to default folders.");
+                alert("Error saving default folders:", result);
             } else {
                 // Optional: confirmation message
                 document.getElementById("sorterResults").innerHTML = "<p style='color:green'>Folders reset to default.</p>";
             }
         } catch (e) {
-            console.error("Error writing default folders:", e);
             alert("Error resetting folders.");
         }
     });
 
+    function loadFolderList() {
+        try {
+            var result = window.cep.fs.readFile(configFilePath);
+            if (result.err === 0 && result.data) {
+                const names = JSON.parse(result.data);
+                names.forEach(name => {
+                    const li = document.createElement("li");
+                    li.className = "list-item";
+                    commitEdit(li, name, { save: false });  // ✅ Good, commits the folder immediately
+                    folderListEl.appendChild(li);
+                });
+            }
+        } catch (e) {
+            alert("Failed to load folder list", e);
+        }
+    }
 
     // ====== INIT ======
     loadFolderList();

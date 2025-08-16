@@ -1,71 +1,95 @@
+function getScanConfig() {
+    function inArray(val, arr) {
+        for (var i = 0; i < arr.length; i++) if (arr[i] === val) return true;
+        return false;
+    }
+
+    return [
+        {
+            key: "images",
+            label: "Images",
+            match: function (item) {
+                if (!item || !item.name) return false;
+                var ext = item.name.toLowerCase().split('.').pop();
+                return inArray(ext, ["jpg", "jpeg", "png", "tif", "tiff", "gif", "bmp", "psd", "webp"]);
+            }
+        },
+        {
+            key: "videos",
+            label: "Videos",
+            match: function (item) {
+                if (item && item.isSequence && item.isSequence()) return false;
+                if (!item || !item.name) return false;
+                var ext = item.name.toLowerCase().split('.').pop();
+                return inArray(ext, ["mp4", "mov", "avi", "mxf", "mkv", "wmv"]);
+            }
+        },
+        {
+            key: "sequences",
+            label: "Sequences",
+            match: function (item) {
+                try { return (item && item.isSequence && item.isSequence()); }
+                catch (e) { return false; }
+            }
+        },
+        {
+            key: "colorMattes",
+            label: "Color Mattes",
+            match: function (item) {
+                if (!item || !item.name) return false;
+                return item &&
+                    item.type === ProjectItemType.CLIP &&
+                    item.name && item.name.toLowerCase().indexOf("color matte") >= 0;
+            }
+        },
+        {
+            key: "audio",
+            label: "Audio Clips",
+            match: function (item) {
+                if (!item || !item.name) return false;
+                var ext = item.name.toLowerCase().split('.').pop();
+                return inArray(ext, ["mp3", "wav", "aiff", "m4a"]);
+            }
+        },
+        {
+            key: "motionGraphics",
+            label: "Motion Graphics",
+            match: function (item) {
+                if (!item || !item.name) return false;
+                var ext = item.name.toLowerCase().split('.').pop();
+                return inArray(ext, ["mogrt"]) ||
+                    (item.type && item.type === ProjectItemType.CLIP && item.isSequence && item.isSequence() && item.mainTrackType === "Video");
+            }
+        },
+        {
+            key: "adjustmentLayers",
+            label: "Adjustment Layers",
+            match: function (item) {
+                if (!item || !item.name) return false;
+                return item.name.toLowerCase().indexOf("adjustment layer") >= 0;
+            }
+        },
+        {
+            key: "subtitles",
+            label: "Subtitles / Captions",
+            match: function (item) {
+                if (!item || !item.name) return false;
+                return item.name.toLowerCase().indexOf("caption") >= 0 ||
+                    item.type === ProjectItemType.CAPTION ||
+                    item.name.toLowerCase().indexOf("subtitle") >= 0;
+            }
+        }
+    ];
+}
+
+
 function scanProjectItems() {
     try {
         if (!app || !app.project) {
             return JSON.stringify({ error: "No active project found" });
         }
 
-        function inArray(val, arr) {
-            for (var i = 0; i < arr.length; i++) if (arr[i] === val) return true;
-            return false;
-        }
-
-        var scanConfig = [
-            {
-                key: "images", label: "Images", match: function (item) {
-                    if (!item || !item.name) return false;
-                    var ext = item.name.toLowerCase().split('.').pop();
-                    return inArray(ext, ["jpg", "jpeg", "png", "tif", "tiff", "gif", "bmp", "psd"]);
-                }
-            },
-            {
-                key: "videos", label: "Videos", match: function (item) {
-                    if (item && item.isSequence && item.isSequence()) return false;
-                    if (!item || !item.name) return false;
-                    var ext = item.name.toLowerCase().split('.').pop();
-                    return inArray(ext, ["mp4", "mov", "avi", "mxf", "mkv", "wmv"]);
-                }
-            },
-            {
-                key: "sequences", label: "Sequences", match: function (item) {
-                    try { return (item && item.isSequence && item.isSequence()); }
-                    catch (e) { return false; }
-                }
-            },
-            {
-                key: "colorMattes", label: "Color Mattes", match: function (item) {
-                    if (!item || !item.name) return false;
-                    return item &&
-                        item.type === ProjectItemType.CLIP &&
-                        item.name && item.name.toLowerCase().indexOf("color matte") >= 0;
-                }
-            },
-            {
-                key: "audio", label: "Audio Clips", match: function (item) {
-                    if (!item || !item.name) return false;
-                    var ext = item.name.toLowerCase().split('.').pop();
-                    return inArray(ext, ["mp3", "wav", "aiff", "m4a"]);
-                }
-            },
-            {
-                key: "motionGraphics", label: "Motion Graphics", match: function (item) {
-                    if (!item || !item.name) return false;
-                    var ext = item.name.toLowerCase().split('.').pop();
-                    return inArray(ext, ["mogrt"]) || (item.type && item.type === ProjectItemType.CLIP && item.isSequence && item.isSequence() && item.mainTrackType === "Video");
-                }
-            },
-            {
-                key: "adjustmentLayers", label: "Adjustment Layers", match: function (item) {
-                    if (!item || !item.name) return false;
-                    return item.name.toLowerCase().indexOf("adjustment layer") >= 0;
-                }
-            },
-            {
-                key: "subtitles", label: "Subtitles / Captions", match: function (item) {
-                    if (!item || !item.name) return false;
-                    return item.name.toLowerCase().indexOf("caption") >= 0 || item.type === ProjectItemType.CAPTION || item.name.toLowerCase().indexOf("subtitle") >= 0;
-                }
-            }
-        ];
+        var scanConfig = getScanConfig();
 
         // Initialize result counts
         var result = {};
@@ -99,69 +123,7 @@ function scanProjectItemsRecursive() {
             return JSON.stringify({ error: "No active project found" });
         }
 
-        function inArray(val, arr) {
-            for (var i = 0; i < arr.length; i++) if (arr[i] === val) return true;
-            return false;
-        }
-
-        var scanConfig = [
-            {
-                key: "images", label: "Images", match: function (item) {
-                    if (!item || !item.name) return false;
-                    var ext = item.name.toLowerCase().split('.').pop();
-                    return inArray(ext, ["jpg", "jpeg", "png", "tif", "tiff", "gif", "bmp", "psd"]);
-                }
-            },
-            {
-                key: "videos", label: "Videos", match: function (item) {
-                    if (item && item.isSequence && item.isSequence()) return false;
-                    if (!item || !item.name) return false;
-                    var ext = item.name.toLowerCase().split('.').pop();
-                    return inArray(ext, ["mp4", "mov", "avi", "mxf", "mkv", "wmv"]);
-                }
-            },
-            {
-                key: "sequences", label: "Sequences", match: function (item) {
-                    try { return (item && item.isSequence && item.isSequence()); }
-                    catch (e) { return false; }
-                }
-            },
-            {
-                key: "colorMattes", label: "Color Mattes", match: function (item) {
-                    if (!item || !item.name) return false;
-                    return item &&
-                        item.type === ProjectItemType.CLIP &&
-                        item.name && item.name.toLowerCase().indexOf("color matte") >= 0;
-                }
-            },
-            {
-                key: "audio", label: "Audio Clips", match: function (item) {
-                    if (!item || !item.name) return false;
-                    var ext = item.name.toLowerCase().split('.').pop();
-                    return inArray(ext, ["mp3", "wav", "aiff", "m4a"]);
-                }
-            },
-            {
-                key: "motionGraphics", label: "Motion Graphics", match: function (item) {
-                    if (!item || !item.name) return false;
-                    var ext = item.name.toLowerCase().split('.').pop();
-                    return inArray(ext, ["mogrt"]) || (item.type && item.type === ProjectItemType.CLIP && item.isSequence && item.isSequence() && item.mainTrackType === "Video");
-                }
-            },
-            {
-                key: "adjustmentLayers", label: "Adjustment Layers", match: function (item) {
-                    if (!item || !item.name) return false;
-                    return item.name.toLowerCase().indexOf("adjustment layer") >= 0;
-                }
-            },
-            {
-                key: "subtitles", label: "Subtitles / Captions", match: function (item) {
-                    if (!item || !item.name) return false;
-                    return item.name.toLowerCase().indexOf("caption") >= 0 || item.type === ProjectItemType.CAPTION || item.name.toLowerCase().indexOf("subtitle") >= 0;
-                }
-            }
-        ];
-
+        var scanConfig = getScanConfig();
         // Initialize result counts
         var result = {};
         for (var i = 0; i < scanConfig.length; i++) {
@@ -224,70 +186,8 @@ function moveItemsToSelectedBins(selectionsJSON) {
             return JSON.stringify({ error: "No active project found" });
         }
 
+
         var selections = JSON.parse(selectionsJSON);
-
-        function inArray(val, arr) {
-            for (var i = 0; i < arr.length; i++) if (arr[i] === val) return true;
-            return false;
-        }
-
-        var scanConfig = [
-            {
-                key: "images", match: function (item) {
-                    if (!item || !item.name) return false;
-                    var ext = item.name.toLowerCase().split('.').pop();
-                    return inArray(ext, ["jpg", "jpeg", "png", "tif", "tiff", "gif", "bmp", "psd"]);
-                }
-            },
-            {
-                key: "videos", match: function (item) {
-                    if (item && item.isSequence && item.isSequence()) return false;
-                    if (!item || !item.name) return false;
-                    var ext = item.name.toLowerCase().split('.').pop();
-                    return inArray(ext, ["mp4", "mov", "avi", "mxf", "mkv", "wmv"]);
-                }
-            },
-            {
-                key: "sequences", match: function (item) {
-                    try { return (item && item.isSequence && item.isSequence()); }
-                    catch (e) { return false; }
-                }
-            },
-            {
-                key: "colorMattes", match: function (item) {
-                    if (!item || !item.name) return false;
-                    return item &&
-                        item.type === ProjectItemType.CLIP &&
-                        item.name && item.name.toLowerCase().indexOf("color matte") >= 0;
-                }
-            },
-            {
-                key: "audio", match: function (item) {
-                    if (!item || !item.name) return false;
-                    var ext = item.name.toLowerCase().split('.').pop();
-                    return inArray(ext, ["mp3", "wav", "aiff", "m4a"]);
-                },
-            },
-            {
-                key: "motionGraphics", match: function (item) {
-                    if (!item || !item.name) return false;
-                    var ext = item.name.toLowerCase().split('.').pop();
-                    return inArray(ext, ["mogrt"]) || (item.type && item.type === ProjectItemType.CLIP && item.isSequence && item.isSequence() && item.mainTrackType === "Video");
-                },
-            },
-            {
-                key: "adjustmentLayers", match: function (item) {
-                    if (!item || !item.name) return false;
-                    return item.name.toLowerCase().indexOf("adjustment layer") >= 0;
-                },
-            },
-            {
-                key: "subtitles", match: function (item) {
-                    if (!item || !item.name) return false;
-                    return item.name.toLowerCase().indexOf("caption") >= 0 || item.type === ProjectItemType.CAPTION || item.name.toLowerCase().indexOf("subtitle") >= 0;
-                },
-            }
-        ];
 
         var root = app.project.rootItem;
 
@@ -298,7 +198,7 @@ function moveItemsToSelectedBins(selectionsJSON) {
             }
             return null;
         }
-
+        var scanConfig = getScanConfig();
         // Count total items for progress
         var totalItems = 0;
         for (var i = 0; i < scanConfig.length; i++) {
@@ -336,7 +236,7 @@ function moveItemsToSelectedBins(selectionsJSON) {
                                 e.data = percent;
                                 e.dispatch();
 
-                                $.sleep(1000); // slows down process for stability
+                                $.sleep(300); // slows down process for stability
                             } catch (err) {
                                 $.writeln("Failed to move item: " + item.name + " - " + err);
                             }
