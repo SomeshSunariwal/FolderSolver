@@ -1,0 +1,72 @@
+[
+    {
+        "key": "images",
+        "label": "Images",
+        "extensions": [
+            "jpg",
+            "jpeg",
+            "png",
+            "tif",
+            "tiff",
+            "gif",
+            "bmp",
+            "psd",
+            "webp"
+        ]
+    },
+    {
+        "key": "videos",
+        "label": "Videos",
+        "extensions": [
+            "mp4",
+            "mov",
+            "avi",
+            "mxf",
+            "mkv",
+            "wmv"
+        ]
+    },
+    {
+        "key": "sequences",
+        "label": "Sequences",
+        "sequence": true
+    },
+    {
+        "key": "colorMattes",
+        "label": "Color Mattes",
+        "nameContains": "color matte",
+        "type": "clip"
+    },
+    {
+        "key": "audio",
+        "label": "Audio Clips",
+        "extensions": [
+            "mp3",
+            "wav",
+            "aiff",
+            "m4a"
+        ]
+    },
+    {
+        "key": "motionGraphics",
+        "label": "Motion Graphics",
+        "extensions": [
+            "mogrt"
+        ],
+        "videoClipCheck": true
+    },
+    {
+        "key": "adjustmentLayers",
+        "label": "Adjustment Layers",
+        "nameContains": "adjustment layer"
+    },
+    {
+        "key": "subtitles",
+        "label": "Subtitles / Captions",
+        "nameContains": [
+            "caption",
+            "subtitle"
+        ],
+        "type": "caption"
+    }
+]
