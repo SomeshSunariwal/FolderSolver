@@ -34,8 +34,8 @@
     {
         "key": "colorMattes",
         "label": "Color Mattes",
-        "nameContains": "color matte",
-        "type": "clip"
+        "type": "clip",
+        "nameContains": "color matte"
     },
     {
         "key": "audio",
@@ -63,10 +63,10 @@
     {
         "key": "subtitles",
         "label": "Subtitles / Captions",
+        "type": "caption",
         "nameContains": [
-            "caption",
-            "subtitle"
-        ],
-        "type": "caption"
+            "subtitle",
+            "caption"
+        ]
     }
 ]
